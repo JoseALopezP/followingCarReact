@@ -1,0 +1,20 @@
+.carEnvironment{
+    background-color: aqua;
+    width: 960px;
+    height: 540px;
+    border-radius: 40px;
+    overflow: hidden;
+    padding: 0px;
+}
+
+.carImg{
+    position: relative;
+    height: 40px;
+    z-index: 1;
+}
+.trackImg{
+    height: 700px;
+    position: relative;
+    top: -45px;
+    z-index: 0;
+}
