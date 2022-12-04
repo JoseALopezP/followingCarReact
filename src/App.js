@@ -9,13 +9,12 @@ function App() {
   const [carPoint, setCarPoint] = useState({x:0 , y:0}); //realtime car coordinates
   const [carCorrection] = useState({x:-12 , y:-20}); //correction for setting mouse on the middle of the car
   const [carAngle, setCarAngle] = useState(0) //car angle
+  const [carTransitionVariables, setCarTransitionVariables] = useState({})
   const [carAnimationVariables, setCarAnimationVariables] = useState({})
 
   const radians_to_degrees = (rad) =>{
-    return rad * (180.0 / Math.PI);
+    return (rad * 180.0 / Math.PI);
   }
-          
-console.log(radians_to_degrees(0.7853981633974483));
   useEffect(() => {
     const handleWindowMouseMove = event => {
       setGlobalMouseCoords({
@@ -36,29 +35,41 @@ console.log(radians_to_degrees(0.7853981633974483));
     });
     handleCarMove()
   };
+  const setCarCoordsFunc = () =>{
+    
+    setTimeout(() => {
+      const oldAngle = carAngle;
+      const angle = radians_to_degrees(Math.atan2((carPoint.y - mouseCoords.y - carCorrection.y),(carPoint.x - mouseCoords.x - carCorrection.x)));
+      if(angle !== 0 && angle){
+        setCarAngle(angle)
+      }
+      if(Math.abs(carAngle - oldAngle)  > 30){
+        setCarTransitionVariables({
+          duration: 10
+        })
+      }
+    }, 200)
+    setTimeout(() => {
+      setCarCoords({
+        x: mouseCoords.x -480,
+        y: -(mouseCoords.y -270),
+      })
+    }, 100)
+    setTimeout(() => {
+      setCarPoint({
+        x: (mouseCoords.x + carCorrection.x),
+        y: (mouseCoords.y + carCorrection.y),
+      })
+    }, 100)
+  }
   const handleCarMove = () => {
-    const angle = radians_to_degrees(Math.atan(((-(carCoords.y - 270)) - (-(mouseCoords.y - 270)))/((carCoords.x - 480) - (mouseCoords.x - 480))));
-    console.log(angle)
-    if(angle !== 0 && angle){
-      setCarAngle(angle)
-    }
-    setCarPoint({
-      x: (mouseCoords.x + carCorrection.x),
-      y: (mouseCoords.y + carCorrection.y),
-    })
-    setCarCoords({
-      x: mouseCoords.x -480,
-      y: -(mouseCoords.y -270),
-    })
+    setCarCoordsFunc()
     setCarAnimationVariables({
       ...carPoint,
       type: "inertia",
+      rotate: carAngle + 270
     })
   };
-  const carTransition = {
-    type: "intertia",
-    duration: .2,
-  }
   
   return (
     <>
@@ -67,7 +78,7 @@ console.log(radians_to_degrees(0.7853981633974483));
       <h2>Car coords: {carCoords.x} {carCoords.y}</h2>
       <h2>Car angle: {carAngle}</h2>
       <motion.div className="carEnvironment" onMouseMove={handleMouseMove}>
-        <motion.img animate={carAnimationVariables} transition={carTransition} className="carImg" src='assets/car.webp' alt='car' />
+        <motion.img animate={carAnimationVariables} transition={carTransitionVariables} className="carImg" src='assets/car.webp' alt='car' />
         <motion.img className="trackImg" src='assets/pista1.webp' alt='track'/>
       </motion.div>
     </>
